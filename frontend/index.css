@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap');
+
+:root {
+  --bg-blue-1: #a9dbff;
+  --bg-blue-2: #61b4ef;
+  --bg-blue-3: #42a0e2;
+  --bg-blue-4: #2179b8;
+
+  --bg-mint-1: #c8ece1;
+
+  --bg-green-1: #b7f2cc;
+
+  --bg-yellow-1: #fcebbb;
+  --bg-yellow-2: #f5d782;
+  --bg-yellow-3: #f1c652;
+
+  --fg-blue: #165786;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 90% -20%, #a9dbff90, transparent 60%),
+    linear-gradient(
+      135deg in oklch,
+      var(--bg-blue-1) 0%,
+      var(--bg-mint-1) 45%,
+      var(--bg-green-1) 100%
+    );
+  background-blend-mode: multiply, normal;
+  color: #353535;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}

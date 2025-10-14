@@ -5,6 +5,8 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use tower_http::cors::CorsLayer;
+use tower_http::services::ServeDir;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 
@@ -66,6 +68,8 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_axum::Shut
         .route("/timeslots/occupy", post(occupy))
         .route("/timeslots/getByEmail", get(get_by_email))
         .route("/timeslots", get(get_all))
+        .fallback_service(ServeDir::new("static"))
+        .layer(CorsLayer::permissive())
         .with_state(state);
 
     Ok(router.into())
@@ -81,7 +85,9 @@ struct OccupyJsonBody {
 struct Timeslot {
     pub id: i32,
     pub email: Option<String>,
+    #[serde(with = "time::serde::rfc3339")]
     pub start_time: time::OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
     pub end_time: time::OffsetDateTime,
 }
 

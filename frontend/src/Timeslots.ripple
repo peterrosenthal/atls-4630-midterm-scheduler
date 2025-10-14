@@ -1,0 +1,227 @@
+import { effect, track, type Tracked } from 'ripple';
+import { Temporal } from '@js-temporal/polyfill';
+
+import { Spinner } from './Spinner.ripple';
+
+import type Timeslot from './Timeslot';
+import type TimeslotDto from './TimeslotDto';
+
+function isFirstDay(timeslot: Timeslot) {
+  return timeslot.startTime.toZonedDateTimeISO('America/Denver').dayOfYear === 301;
+}
+
+function isSecondDay(timeslot: Timeslot) {
+  return timeslot.startTime.toZonedDateTimeISO('America/Denver').dayOfYear === 303;
+}
+
+interface TimeslotsProps {
+  email: Tracked<string>;
+  reservedTimeslot: Tracked<Timeslot | null>;
+}
+
+export component Timeslots({ @email, @reservedTimeslot }: TimeslotsProps) {
+  <h1>{'Please pick a timeslot'}</h1>
+
+  let error = track(false);
+  if (@error) {
+    <div class='error'>{'Something went wrong when reserving the timeslot. Please refresh the page and try again.'}</div>
+  }
+
+  const selectedTimeslot = track<Timeslot | undefined>();
+  function select(timeslot: Timeslot) {
+    if (@selectedTimeslot === timeslot) {
+      @selectedTimeslot = undefined;
+    } else {
+      @selectedTimeslot = timeslot;
+    }
+  }
+
+  <div class='timeslotsGrid'>
+    const timeslots: TrackedArray<Timeslot> = #[];
+
+    effect(() => {
+      fetch('/timeslots')
+        .then((result) => result.json())
+        .then((json: TimeslotDto[]) =>
+          timeslots.push(
+            ...json.map((timeslot) => ({
+              ...timeslot,
+              startTime: Temporal.Instant.from(timeslot.start_time),
+              endTime: Temporal.Instant.from(timeslot.end_time),
+            }))
+            .sort((a, b) => Temporal.Instant.compare(a.endTime, b.endTime))
+          )
+        );
+    });
+
+    <div class='timeslotsGroup'>
+      <h2>{'Tuesday, October 28'}</h2>
+
+      for (const timeslot of timeslots.filter(isFirstDay)) {
+        <button
+          class={`timeslotButton ${@selectedTimeslot === timeslot ? 'selected' : ''}`}
+          onClick={() => select(timeslot)}
+          disabled={!!timeslot.email}
+        >
+          {timeslot.startTime.toLocaleString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+          })}
+        </button>
+      }
+    </div>
+
+    <div class='timeslotsGroup'>
+      <h2>{'Thursday, October 30'}</h2>
+
+      for (const timeslot of timeslots.filter(isSecondDay)) {
+        <button
+          class={`timeslotButton ${@selectedTimeslot === timeslot ? 'selected' : ''}`}
+          onClick={() => select(timeslot)}
+          disabled={!!timeslot.email}
+        >
+          {timeslot.startTime.toLocaleString('en-US', { 
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+          })}
+        </button>
+      }
+    </div>
+  </div>
+
+  let submitting = track(false);
+  <button
+    class='submitButton'
+    onClick={async () => {
+      @submitting = true;
+
+      const response = await fetch('/timeslots/occupy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: @selectedTimeslot.id,
+          email: @email,
+        }),
+      });
+
+      if (response.ok) {
+        @reservedTimeslot = @selectedTimeslot;
+      } else {
+        console.error(response);
+        @error = true;
+      }
+
+      @submitting = false;
+    }}
+    disabled={@submitting || !@selectedTimeslot}
+  >
+    {'Reserve timeslot'}
+    if (@submitting) {
+      {' '}<Spinner size='small' />
+    }
+  </button>
+
+  <style>
+    .error {
+      background-color: #9e293d;
+      color: white;
+      padding-inline: 1rem;
+      padding-block: 0.5rem;
+      border-radius: 1rem;
+      box-sizing: border-box;
+      width: 90%;
+      max-width: 70rem;
+      margin: auto;
+    }
+
+    .timeslotsGrid {
+      width: 90%;
+      max-width: 70rem;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+    }
+
+    .timeslotsGroup {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: stretch;
+      justify-content: start;
+      gap: 0.5em;
+    }
+
+    .timeslotsGroup h2 {
+      align-self: center;
+    }
+
+    .timeslotButton {
+      box-sizing: border-box;
+      padding: 0.25em;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      height: 4rem;
+      font-size: 1.25rem;
+      background-color: var(--bg-yellow-1);
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--bg-yellow-3);
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px 2px #00000018;
+      transition: all 250ms;
+    }
+
+    .timeslotButton.selected {
+      background-color: var(--bg-yellow-2);
+    }
+
+    .timeslotButton:hover,
+    .timeslotButton:focus-visible {
+      background-color: var(--bg-yellow-2);
+      box-shadow: 0 4px 4px 2px #00000018;
+    }
+
+    .timeslotButton:disabled {
+      background-color: #bebebe;
+      border-color: #aaaaaa;
+      color: #454545;
+      box-shadow: none;
+    }
+
+    .submitButton {
+      box-sizing: border-box;
+      margin-block: 2rem;
+      padding-inline: 1rem;
+      padding-block: 0.25rem;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      height: 4rem;
+      font-size: 1.25rem;
+      background-color: var(--bg-blue-2);
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--bg-blue-4);
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px 2px #00000018;
+      transition: all 250ms;
+    }
+
+    .submitButton:hover,
+    .submitButton:focus-visible {
+      background-color: var(--bg-blue-3);
+      box-shadow: 0 4px 4px 2px #00000018;
+    }
+
+    .submitButton:disabled {
+      background-color: #e8e8e8;
+      border-color: #d6d6d6;
+      color: #7b7b7b;
+      box-shadow: none;
+    }
+  </style>
+}

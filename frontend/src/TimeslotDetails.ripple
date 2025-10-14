@@ -1,0 +1,45 @@
+import { type Tracked } from 'ripple';
+
+import type Timeslot from './Timeslot';
+
+interface TimeslotDetailsProps {
+  reservedTimeslot: Tracked<Timeslot>;
+}
+
+export component TimeslotDetails({ reservedTimeslot }: TimeslotDetailsProps) {
+  <h1>{'Your midterm details'}</h1>
+
+  <p>
+    {'Date: '}
+    {@reservedTimeslot.startTime.toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+    })}
+  </p>
+
+  <p>
+    {'Start time: '}
+    {@reservedTimeslot.startTime.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    })}
+  </p>
+
+  <p>
+    {'End time: '}
+    {@reservedTimeslot.endTime.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    })}
+  </p>
+
+  <p>
+    {'Location: ATLAS 104 (in-person)'}
+  </p>
+
+  <p>
+    {'Codepen link: <coming soon>'}
+  </p>
+}

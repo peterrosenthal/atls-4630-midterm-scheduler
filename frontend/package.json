@@ -1,0 +1,32 @@
+{
+	"name": "atls-4630-midterm-scheduler-frontend",
+	"version": "1.0.0",
+	"description": "A Ripple application created with create-ripple",
+	"type": "module",
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"scripts": {
+		"start": "vite",
+		"dev": "vite",
+		"build": "vite build",
+		"lint": "eslint .",
+		"serve": "vite preview",
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"eslint": "^9.0.0",
+		"eslint-plugin-ripple": "^0.1.0",
+		"prettier": "^3.6.2",
+		"prettier-plugin-ripple": "^0.2.29",
+		"typescript": "^5.9.2",
+		"vite": "^7.1.4",
+		"vite-plugin-ripple": "^0.2.29"
+	},
+	"dependencies": {
+		"@js-temporal/polyfill": "^0.5.1",
+		"ripple": "^0.2.35"
+	}
+}

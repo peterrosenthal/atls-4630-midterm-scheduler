@@ -1,0 +1,81 @@
+import { track, type Tracked } from 'ripple';
+
+export component Login({ @email }: { email: Tracked<string> }) {
+  let inputValue = track('');
+
+  <h1>{'Please enter your email'}</h1>
+
+  <form
+    onSubmit={(e: SubmitEvent) => {
+      e.preventDefault();
+      @email = @inputValue;
+    }}
+  >
+    <input onChange={(e: ChangeEvent) => @inputValue = e.target.value} />
+    <button type="submit">
+      <svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M38.0655 38.1352C31.1682 27.7894 38.0655 20.8921 38.0655 20.8921C38.0655 20.8921 44.9628 13.9949 55.3086 20.8921C59.802 23.8877 66.2423 30.8442 72.4696 37.5706C75.5048 40.8491 78.3632 44.1502 81.1733 46.7569C83.9834 49.3636 93 58.2963 93 64C93 69.7037 83.8547 78.554 81.1733 81.2431C78.4919 83.9323 75.5049 87.1508 72.4697 90.4292C66.2424 97.1557 59.802 104.112 55.3086 107.108C44.9627 114.005 38.0654 107.108 38.0654 107.108C38.0654 107.108 31.1682 100.211 38.0654 89.8647C41.0611 85.3713 48.0176 78.9309 54.7441 72.7036C57.2874 70.349 59.7913 68.0692 62.0487 65.848C62.8812 65.0289 62.8852 62.9751 62.0487 62.152C59.8511 59.9894 57.2875 57.6511 54.7443 55.2966C48.0178 49.0692 41.0612 42.6287 38.0655 38.1352Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </form>
+
+  <style>
+    form {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1em;
+    }
+
+    input {
+      box-sizing: border-box;
+      height: 4rem;
+      width: 30rem;
+      font-size: 2rem;
+      background-color: white;
+      border-style: none;
+      border-width: 0;
+      border-radius: 1rem;
+      padding-inline: 1rem;
+      box-shadow: inset 0 0 4px 0 #00000080;
+    }
+
+    input:focus {
+      outline-style: solid;
+      outline-width: 1px;
+      outline-color: var(--fg-blue);
+      outline-offset: 2px;
+    }
+
+    button {
+      box-sizing: border-box;
+      padding: 0;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      height: 4rem;
+      width: 4rem;
+      background-color: var(--bg-blue-2);
+      color: var(--fg-blue);
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--bg-blue-4);
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px 2px #00000018;
+      transition: all 250ms;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background-color: var(--bg-blue-3);
+      box-shadow: 0 4px 4px 2px #00000018;
+    }
+
+    button svg {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  </style>
+}

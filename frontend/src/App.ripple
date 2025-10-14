@@ -1,0 +1,48 @@
+import { effect, track } from 'ripple';
+
+import { Login } from './Login.ripple';
+import { Spinner } from './Spinner.ripple';
+import { Timeslots } from './Timeslots.ripple';
+import { TimeslotDetails } from './TimeslotDetails.ripple';
+
+import { Temporal } from '@js-temporal/polyfill';
+
+import type Timeslot from './Timeslot';
+import type TimeslotDto from './TimeslotDto';
+
+export component App() {
+  <div class='container'>
+    let email = track('');
+    let reservedTimeslot = track<Timeslot | null | undefined>(undefined);
+
+    effect(() => {
+      if (!@email) return
+
+      fetch(`timeslots/getByEmail?email=${encodeURIComponent(@email)}`)
+        .then(response => response.json())
+        .then((json: TimeslotDto | null) =>
+          @reservedTimeslot = json ? {
+            ...json,
+            startTime: Temporal.Instant.from(json.start_time),
+            endTime: Temporal.Instant.from(json.end_time),
+          } : null
+        )
+    })
+
+    if (!@email) {
+      <Login {email} />
+    } else if (@reservedTimeslot === undefined) {
+      <Spinner size='large' />
+    } else if (@reservedTimeslot === null) {
+      <Timeslots {email} {reservedTimeslot} />
+    } else {
+      <TimeslotDetails {reservedTimeslot} />
+    }
+  </div>
+
+  <style>
+    .container {
+      text-align: center;
+    }
+  </style>
+}
