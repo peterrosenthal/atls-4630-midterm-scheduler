@@ -54,6 +54,28 @@ export component Timeslots({ @email, @reservedTimeslot }: TimeslotsProps) {
         );
     });
 
+    effect(() => {
+      const sse = new EventSource('/sse');
+
+      function onTimeslotUpdated(event: MessageEvent<string>) {
+        const data: { id: number, email: string } = JSON.parse(event.data);
+
+        const index = timeslots.findIndex(ts => ts.id === data.id);
+        if (index >= 0) {
+          const timeslot = timeslots[index];
+          timeslots.splice(index, 1, { ...timeslot, email: data.email });
+        }
+
+        if (@selectedTimeslot?.id === data.id && data.email !== @email) {
+          @selectedTimeslot = undefined;
+        }
+      }
+
+      sse.addEventListener('timeslot_occupied', onTimeslotUpdated);
+
+      () => sse.removeEventListener('timeslot_occupied', onTimeslotUpdated);
+    })
+
     <div class='timeslotsGroup'>
       <h2>{'Tuesday, October 28'}</h2>
 
