@@ -12,7 +12,7 @@ import type TimeslotDto from './TimeslotDto';
 
 export component App() {
   <div class='container'>
-    let email = track('');
+    let email = track(localStorage.getItem('email') ?? '');
     let reservedTimeslot = track<Timeslot | null | undefined>(undefined);
 
     effect(() => {

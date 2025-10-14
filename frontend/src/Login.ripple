@@ -9,6 +9,7 @@ export component Login({ @email }: { email: Tracked<string> }) {
     onSubmit={(e: SubmitEvent) => {
       e.preventDefault();
       @email = @inputValue;
+      localStorage.setItem('email', @inputValue);
     }}
   >
     <input onChange={(e: ChangeEvent) => @inputValue = e.target.value} />
