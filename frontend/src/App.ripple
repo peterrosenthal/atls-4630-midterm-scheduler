@@ -8,7 +8,6 @@ import { TimeslotDetails } from './TimeslotDetails.ripple';
 import { Temporal } from '@js-temporal/polyfill';
 
 import type Timeslot from './Timeslot';
-import type TimeslotDto from './TimeslotDto';
 
 export component App() {
   <div class='container'>
@@ -20,11 +19,11 @@ export component App() {
 
       fetch(`timeslots/getByEmail?email=${encodeURIComponent(@email)}`)
         .then(response => response.json())
-        .then((json: TimeslotDto | null) =>
+        .then((json: Timeslot | null) =>
           @reservedTimeslot = json ? {
             ...json,
-            startTime: Temporal.Instant.from(json.start_time),
-            endTime: Temporal.Instant.from(json.end_time),
+            startTime: Temporal.Instant.from(json.startTime),
+            endTime: Temporal.Instant.from(json.endTime),
           } : null
         )
     })

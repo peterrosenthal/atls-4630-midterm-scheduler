@@ -138,6 +138,7 @@ struct OccupiedEvent {
 }
 
 #[derive(Serialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 struct Timeslot {
     pub id: i32,
     pub email: Option<String>,
