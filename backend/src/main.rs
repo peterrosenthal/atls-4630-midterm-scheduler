@@ -14,14 +14,26 @@ async fn occupy(
     State(state): State<MyState>,
     Json(data): Json<OccupyJsonBody>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    match sqlx::query("UPDATE timeslots SET email = $1 WHERE id = $2")
+    if data.email.is_empty() {
+        return Err((StatusCode::BAD_REQUEST, "Email cannot be empty".to_string()));
+    }
+
+    match sqlx::query("UPDATE timeslots SET email = $1 WHERE id = $2 AND email IS NULL RETURNING id")
         .bind(&data.email)
         .bind(data.id)
-        .execute(&state.pool)
+        .fetch_optional(&state.pool)
         .await
     {
-        Ok(_) => Ok(StatusCode::OK),
-        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+        Ok(Some(_)) => Ok(StatusCode::OK),
+        Ok(None) => Err((StatusCode::CONFLICT, "Timeslot already occupied".to_string())),
+        Err(e) => {
+            if let sqlx::Error::Database(db_err) = &e {
+                if db_err.code().as_deref() == Some("23505") {
+                    return Err((StatusCode::CONFLICT, "User already has a timeslot".to_string()));
+                }
+            }
+            Err((StatusCode::BAD_REQUEST, e.to_string()))
+        },
     }
 }
 
